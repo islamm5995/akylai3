@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AKYLAI</title>
+  <link rel="shortcut icon" href="./ai-removebg-preview.png" type="image/x-icon">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: black;
+    }
+
+    .n{
+      height: 360px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 50%;
+      margin: 10px;
+      width: 100px;
+      height: 100px;
+    }
+    button img {
+      width: 50px;
+      height: 50px;
+    }
+    #result, #status {
+      font-size: 18px;
+      margin-top: 20px;
+      color: rgb(255, 255, 255);
+    }
+  </style>
+</head>
+<body>
+  <img class="n" src="https://media4.giphy.com/media/F6O1O2saVuBbYCfZhm/giphy.gif" alt="">
+  <div>
+    <button id="start-button"><img src="https://images.icon-icons.com/1674/PNG/512/mic_111082.png" alt=""></button>
+    <button id="stop-button" disabled><img src="https://cdn-icons-png.flaticon.com/512/25/25632.png" alt=""></button>
+  </div>
+  <p id="result"></p>
+  <p id="status"></p>
+
+  <script>
+    const assistantName = 'Акылай';
+    const startButton = document.getElementById('start-button');
+    const stopButton = document.getElementById('stop-button');
+    const result = document.getElementById('result');
+    const status = document.getElementById('status');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Ваш браузер не поддерживает распознавание речи.');
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'ru-RU';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      
+      startButton.addEventListener('click', () => {
+        recognition.start();
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        status.textContent = 'Слушаю...';
+      });
+      
+      stopButton.addEventListener('click', () => {
+        recognition.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        status.textContent = 'Прекратил слушать.';
+      });
+      
+      recognition.addEventListener('result', (event) => {
+        const speechResult = event.results[0][0].transcript.toLowerCase();
+        result.textContent = `Вы сказали: ${speechResult}`;
+        processCommand(speechResult);
+      });
+      
+      recognition.addEventListener('speechend', () => {
+        recognition.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        status.textContent = 'Прекратил слушать.';
+      });
+      
+      recognition.addEventListener('error', (event) => {
+        result.textContent = `Ошибка: ${event.error}`;
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        status.textContent = '';
+      });
+
+      function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ru-RU';
+        window.speechSynthesis.speak(utterance);
+      }
+      
+      function processCommand(command) {
+        if (command.includes('привет')) {
+          speak('Привет, чем могу помочь?');
+        } else if (command.includes('как тебя зовут')) {
+          speak(`Меня зовут ${assistantName}.`);
+        } else if (command.includes('который час')) {
+          const now = new Date().toLocaleTimeString('ru-RU');
+          speak(`Сейчас ${now}`);
+        } else if (command.includes('кто тебя создал')) {
+          speak('меня создал Ислам талантбеков из школы имени мамбета мамакеева.');
+        } else if (command.includes('спасибо')) {
+          speak('Пожалуйста.');
+        } else if (command.includes('открой гугл')) {
+          speak('Открываю Google.');
+          window.open('https://www.google.com', '_blank');
+        } else if (command.includes('открой youtube')) {
+          speak('Открываю YouTube.');
+          window.open('https://www.youtube.com', '_blank');
+        } else {
+          speak('Извините, я не понял. Повторите, пожалуйста.');
+        }
+      }
+    }
+  </script>
+</body>
+</html>
